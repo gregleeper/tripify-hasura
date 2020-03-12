@@ -5,3 +5,13 @@
 @tailwind components;
 
 @tailwind utilities;
+
+body {
+  background-color: #edf2f7;
+  font-variation-settings: "opsz" 20, "GRAD" 400, "YAXS" 400;
+  font-weight: 112.72000122070312;
+  font-size: 15px;
+  line-height: 29px;
+  letter-spacing: 0.017em;
+  font-style: normal;
+}

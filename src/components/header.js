@@ -1,22 +1,74 @@
+import { useContext } from "react";
+import { userContext } from "../pages/_app";
 import Link from "next/link";
 import { useState } from "react";
+import { useQuery } from "@apollo/react-hooks";
+import gql from "graphql-tag";
+import { withApollo } from "../lib/apollo";
+import { FaBusAlt } from "react-icons/fa";
+import { auth } from "firebase";
 
-function Header() {
+function Header(pageProps, props) {
+  const context = useContext(userContext);
+  // console.log(context.authState);
   const [isExpanded, toggleExpansion] = useState(false);
+  const NoUserMenu = () => {
+    return (
+      <>
+        <li className="mt-3 md:mt-0 md:ml-6">
+          <Link href="/">
+            <a className="block text-white">Home</a>
+          </Link>
+        </li>
+        <li className="mt-3 md:mt-0 md:ml-6 text-white">
+          <button onClick={context.signIn}>Login</button>
+        </li>
+      </>
+    );
+  };
+  const UserMenu = () => {
+    if (context.authState.user) {
+      if (context.authState.manager) {
+        return [
+          { title: "Home", route: "/" },
+          {
+            title: "My Trips",
+            route: "/user/[id]/trips",
+            as: `/user/${context.authState.user.uid}/trips`
+          },
+          { title: "Dashboard", route: "/admin/dashboard" }
+        ].map(navigationItem => (
+          <li className="mt-3 md:mt-0 md:ml-6" key={navigationItem.title}>
+            <Link href={navigationItem.route} as={navigationItem.as}>
+              <a className="block text-white">{navigationItem.title}</a>
+            </Link>
+          </li>
+        ));
+      }
+      return [
+        { title: "Home", route: "/" },
+        {
+          title: "My Trips",
+          route: "/user/[id]/trips",
+          as: `/user/${context.authState.user.uid}/trips`
+        }
+      ].map(navigationItem => (
+        <li className="mt-3 md:mt-0 md:ml-6" key={navigationItem.title}>
+          <Link href={navigationItem.route} as={navigationItem.as}>
+            <a className="block text-white">{navigationItem.title}</a>
+          </Link>
+        </li>
+      ));
+    }
+  };
 
   return (
-    <header className="bg-teal-500">
-      <div className="flex flex-wrap md:flex-no-wrap items-center justify-between max-w-4xl mx-auto p-4 md:p-8">
+    <header className="bg-blue-900">
+      <div className="flex flex-wrap md:flex-no-wrap items-center justify-between max-w-6xl mx-auto p-2 md:p-2">
         <div className="flex items-center">
-          <img
-            src="tailwind-logo.svg"
-            className="mr-3 text-white w-10"
-          />
-
+          <FaBusAlt className="text-2xl text-white mr-2" />
           <Link href="/">
-            <a className="font-bold text-white text-xl">
-              Next.js Starter Tailwind
-            </a>
+            <a className="font-bold text-white text-xl">Tripify</a>
           </Link>
         </div>
 
@@ -39,20 +91,22 @@ function Header() {
             isExpanded ? `block` : `hidden`
           } md:flex flex-col md:flex-row md:items-center md:justify-center text-sm w-full md:w-auto`}
         >
-          {[
-            { title: "Home", route: "/" },
-            { title: "About", route: "/about" }
-          ].map(navigationItem => (
-            <li className="mt-3 md:mt-0 md:ml-6" key={navigationItem.title}>
-              <Link href={navigationItem.route}>
-                <a className="block text-white">{navigationItem.title}</a>
-              </Link>
+          {context.authState.user ? <UserMenu /> : <NoUserMenu />}
+          {context.authState.user ? (
+            <li className="mt-3 md:mt-0 md:ml-6 text-white">
+              <button onClick={context.signOut}>Logout</button>
             </li>
-          ))}
+          ) : (
+            <>
+              <li className="mt-3 md:mt-0 md:ml-6 text-white">
+                <button onClick={context.logout}>Logout</button>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </header>
   );
 }
 
-export default Header;
+export default withApollo(Header);

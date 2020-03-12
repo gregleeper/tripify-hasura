@@ -1,17 +1,24 @@
+import { useContext } from "react";
 import Layout from "../components/layout";
+import MyCalendar from "../components/caldendar";
+import { withApollo } from "../lib/apollo";
+import { userContext } from "./_app";
 
 function Home() {
+  const { authState } = useContext(userContext);
+
   return (
     <Layout>
-      <div className="flex flex-col items-center justify-center">
-        <img
-          src="team-of-critters.svg"
-          className="max-w-xl w-full"
-        />
+      {authState.user && (
+        <div className=" mb-4 ml-2 ">
+          <h2 className="text-xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
+            Welcome, {authState.user.displayName}!
+          </h2>
+        </div>
+      )}
 
-        <h2 className="bg-yellow-400 font-bold my-8 p-3 text-lg md:text-2xl">
-          Hi! Welcome to your first Next.js site.
-        </h2>
+      <div className="flex flex-col items-center justify-center">
+        <MyCalendar />
       </div>
     </Layout>
   );
